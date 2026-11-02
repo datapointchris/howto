@@ -7,6 +7,10 @@ import pytest
 
 from howto import library
 
+# Bound at import, before conftest swaps the module attributes for no-ops.
+ensure_cloned = library.ensure_cloned
+autosync = library.autosync
+
 
 def git_in(cwd, *args):
     subprocess.run(['git', '-c', 'user.email=t@t', '-c', 'user.name=t', *args], cwd=cwd, check=True)
@@ -53,11 +57,11 @@ def test_the_library_is_cloned_on_first_use_and_only_then(tmp_path, monkeypatch)
     monkeypatch.setattr(library, 'LIBRARY_DIR', target)
     monkeypatch.setattr(library, 'LIBRARY_REMOTE', str(upstream_with_a_card(tmp_path)))
 
-    assert library.ensure_cloned() is True
+    assert ensure_cloned() is True
     assert (target / 'cards' / 'a-card.md').exists()
 
     monkeypatch.setattr(library, 'LIBRARY_REMOTE', 'file:///nowhere-that-exists')
-    assert library.ensure_cloned() is True
+    assert ensure_cloned() is True
 
 
 def test_a_non_empty_directory_is_left_alone(tmp_path, monkeypatch):
@@ -67,7 +71,7 @@ def test_a_non_empty_directory_is_left_alone(tmp_path, monkeypatch):
     (target / 'mine.md').write_text('# Mine\n')
     monkeypatch.setattr(library, 'LIBRARY_DIR', target)
 
-    assert library.ensure_cloned() is False
+    assert ensure_cloned() is False
     assert (target / 'mine.md').exists()
 
 
@@ -75,7 +79,7 @@ def test_a_failed_clone_warns_rather_than_stopping_the_run(tmp_path, monkeypatch
     monkeypatch.setattr(library, 'LIBRARY_DIR', tmp_path / 'library')
     monkeypatch.setattr(library, 'LIBRARY_REMOTE', str(tmp_path / 'not-a-repo'))
 
-    assert library.ensure_cloned() is False
+    assert ensure_cloned() is False
     assert 'could not clone' in capsys.readouterr().err
 
 
@@ -105,11 +109,11 @@ def test_a_card_written_upstream_arrives_without_anyone_running_sync(synced, cap
     git_in(upstream, 'add', '-A')
     git_in(upstream, 'commit', '-qm', 'a second card')
 
-    assert library.autosync() is True
+    assert autosync() is True
     assert settled(lambda: (checkout / 'cards' / 'later.md').exists())
     assert settled(lambda: not library.SYNC_LOCK.exists())
 
-    assert library.autosync() is True
+    assert autosync() is True
     assert capsys.readouterr().err == ''
 
 
@@ -118,10 +122,10 @@ def test_a_pull_already_in_flight_is_not_started_twice_unless_its_lock_is_stale(
     killed mid-flight leaves the lock behind, and must not stop syncing forever."""
     library.SYNC_LOCK.mkdir(parents=True)
 
-    assert library.autosync() is False
+    assert autosync() is False
 
     monkeypatch.setattr(library, 'STALE_LOCK_SECONDS', 0)
-    assert library.autosync() is True
+    assert autosync() is True
 
 
 def test_a_preview_or_a_help_screen_does_not_pull(synced):
@@ -133,9 +137,9 @@ def test_a_preview_or_a_help_screen_does_not_pull(synced):
         ['howto', '--help'],
         ['howto', 'cards', 'show', '-h'],
     ):
-        assert library.autosync(argv=argv) is False, argv
+        assert autosync(argv=argv) is False, argv
 
-    assert library.autosync(argv=['howto', 'find']) is True
+    assert autosync(argv=['howto', 'find']) is True
 
 
 def test_an_unfinished_card_is_not_the_price_of_a_background_sync(synced):
@@ -148,7 +152,7 @@ def test_an_unfinished_card_is_not_the_price_of_a_background_sync(synced):
     mine = checkout / 'cards' / 'a-card.md'
     mine.write_text('# A Card, half written\n')
 
-    assert library.autosync() is True
+    assert autosync() is True
     assert settled(lambda: library.SYNC_LOG.exists() and library.SYNC_LOG.read_text().strip())
     assert mine.read_text() == '# A Card, half written\n'
 
