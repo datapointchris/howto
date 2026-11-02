@@ -1,0 +1,186 @@
+[project]
+name = "howto"
+dynamic = ["version"]
+description = "Search, index and show reference material — cards, Labs, a tool registry and your shell — and keep no state"
+authors = [{ name = "Chris Birch", email = "datapointchris@gmail.com" }]
+license = "MIT"
+license-files = ["LICENSE"]
+readme = "README.md"
+keywords = ["cli", "reference", "cheatsheet", "tldr", "fzf", "zsh"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "Programming Language :: Python :: 3 :: Only",
+    "Typing :: Typed",
+]
+
+# An application, so it takes the current floor rather than a library's lower one.
+# The only caller is the person running it, and uv fetches a matching interpreter.
+requires-python = ">=3.13"
+
+# typer owns the command tree and rich renders everything. rich is declared
+# rather than leaned on as typer's transitive dependency, because howto uses
+# Console directly and a reader should not have to check typer's pins to learn
+# that. The [typer] extra is the ready-made `howto update`.
+dependencies = [
+    "typer>=0.15.0",
+    "rich>=13.0.0",
+    "pyyaml",
+    "pyselfupdate[typer]>=0.5.4",
+]
+
+[project.scripts]
+howto = "howto.cli:main"
+
+[tool.ruff]
+line-length = 140
+extend-exclude = ["*.md"]
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "I",    # isort
+    "ICN",  # flake8-import-conventions
+    # flake8-bandit by rule, never as the family. Most of what the family
+    # reports is a subprocess call made on purpose, and silencing that takes an
+    # ignore list that grows with every project.
+    "S102",  # exec
+    "S113",  # an HTTP request with no timeout, which can hang forever
+    "S301",  # pickle, which runs code from the bytes it loads
+    "S307",  # eval
+    "S324",  # md5 or sha1 used for security
+    "S501",  # TLS certificate verification turned off
+]
+ignore = [
+    "SIM108",  # ternary operator — often less readable
+]
+
+[tool.ruff.lint.isort]
+force-single-line = true
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.lint.flake8-import-conventions]
+banned-from = ["datetime", "pyspark.sql.functions", "pyspark.sql.types"]
+
+[tool.ruff.lint.flake8-import-conventions.extend-aliases]
+datetime = "dt"
+sqlalchemy = "sa"
+"pyspark.sql.functions" = "sf"
+"pyspark.sql.types" = "st"
+dataclasses = "dc"
+
+[tool.mypy]
+pretty = true
+ignore_missing_imports = true
+check_untyped_defs = false
+warn_return_any = false
+
+[tool.pyright]
+typeCheckingMode = "standard"
+analyzeUnannotatedFunctions = true
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+# howto runs other CLIs — fzf, bat, git, tldr, zsh — and draws cards at random,
+# so the subprocess and PRNG checks fire on the design rather than on a defect.
+skips = ["B311", "B404", "B603", "B607"]
+
+[tool.codespell]
+check-filenames = true
+check-hidden = true
+builtin = "clear,rare"
+uri-ignore-words-list = "*"
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+verbosity_assertions = 2
+
+[tool.forge]
+# Keys the shared toolchain standard owns, written by its generator.
+# Dropping one from the template removes it here on the next sync; a key absent
+# from this list belongs to the project and is never touched. Do not hand-edit.
+managed = [
+    ["ruff", "line-length"],
+    ["ruff", "extend-exclude"],
+    ["ruff", "format", "quote-style"],
+    ["ruff", "format", "indent-style"],
+    ["ruff", "format", "skip-magic-trailing-comma"],
+    ["ruff", "format", "line-ending"],
+    ["ruff", "format", "docstring-code-format"],
+    ["ruff", "lint", "select"],
+    ["ruff", "lint", "ignore"],
+    ["ruff", "lint", "isort", "force-single-line"],
+    ["ruff", "lint", "flake8-import-conventions", "banned-from"],
+    ["ruff", "lint", "flake8-import-conventions", "extend-aliases", "datetime"],
+    ["ruff", "lint", "flake8-import-conventions", "extend-aliases", "dataclasses"],
+    ["ruff", "lint", "flake8-import-conventions", "extend-aliases", "sqlalchemy"],
+    ["ruff", "lint", "flake8-import-conventions", "extend-aliases", "pyspark.sql.functions"],
+    ["ruff", "lint", "flake8-import-conventions", "extend-aliases", "pyspark.sql.types"],
+    ["ruff", "lint", "per-file-ignores", "__init__.py"],
+    ["mypy", "pretty"],
+    ["mypy", "ignore_missing_imports"],
+    ["mypy", "check_untyped_defs"],
+    ["mypy", "warn_return_any"],
+    ["pyright", "typeCheckingMode"],
+    ["pyright", "analyzeUnannotatedFunctions"],
+    ["codespell", "check-filenames"],
+    ["codespell", "check-hidden"],
+    ["codespell", "builtin"],
+    ["codespell", "uri-ignore-words-list"],
+    ["pytest", "ini_options", "verbosity_assertions"],
+    ["pytest", "ini_options", "minversion"],
+    ["pytest", "ini_options", "testpaths"],
+]
+# Dependencies held at the version the pre-commit hook runs, in every group
+# and extra that names them, so a local run and CI cannot disagree.
+pinned = ["ruff"]
+
+[dependency-groups]
+dev = [
+    "bandit>=1.7.8",
+    "mypy>=1.10.0",
+    "pre-commit>=4.3.0",
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+    "ruff==0.17.1",
+]
+
+# The release tag is the version. python-semantic-release finds no file to
+# stamp, so it tags the merge commit itself and writes no release commit.
+# uv_build cannot do this: its metadata has no dynamic version field.
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
+
+[tool.uv-dynamic-versioning]
+style = "semver"
+
+# A new commit or tag changes the version, so it has to invalidate uv's cache.
+[tool.uv]
+cache-keys = [{ file = "pyproject.toml" }, { git = { commit = true, tags = true } }]
+
+[build-system]
+requires = ["hatchling", "uv-dynamic-versioning"]
+build-backend = "hatchling.build"
+
+[tool.semantic_release]
+# A feature release on 0.x stays on 0.x. python-semantic-release v10 defaults
+# this to false, which makes the next release of a 0.x project 1.0.0.
+allow_zero_version = true
+# 1.0 is a compatibility promise, so a breaking change on 0.x is a minor bump.
+# Removing this key is how the project reaches 1.0.
+major_on_zero = false
