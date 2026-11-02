@@ -21,6 +21,7 @@ wrapped, because a wrapped row is two rows.
 """
 
 import json
+import shutil
 from itertools import chain
 from typing import Annotated
 
@@ -183,6 +184,19 @@ def render_tool(name: str, meta: dict, brief: bool = False, heading: bool = True
         field('Tags', ', '.join(tags))
     if docs_url := meta.get('docs_url'):
         field('Docs', docs_url)
+
+    # The `usage` string, not the registry key: a key is a package name as often
+    # as a command, so checking it reports `ripgrep` and `git-delta` as missing
+    # while `rg` and `delta` sit on PATH.
+    #
+    # A miss is stated without a verdict attached. Shell functions and aliases
+    # are never on PATH and are perfectly runnable, so a card calling every miss
+    # a stale entry would be wrong most of the times it spoke.
+    head = invocation_head(usage)
+    if head and shutil.which(head):
+        console.print(Text.from_markup('[green]✓[/] ') + Text(f'{head} is on PATH'))
+    else:
+        console.print(Text.from_markup('[yellow]⚠[/] ') + Text(f'{head or name} is not on PATH — functions and aliases never are'))
 
 
 def render_function(name: str, description: str, body: str = '') -> None:

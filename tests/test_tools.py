@@ -6,6 +6,7 @@ correctly and prints the wrong field is not a passing case.
 """
 
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -45,6 +46,15 @@ def registry(tmp_path, monkeypatch):
     path = tmp_path / 'registry.yml'
     path.write_text(REGISTRY_YAML)
     monkeypatch.setattr(tools, 'REGISTRY', path)
+
+    # The PATH line reads the real PATH, so `rg` is stubbed in front of it and
+    # `long-gone` still resolves to nothing.
+    stubs = tmp_path / 'bin'
+    stubs.mkdir()
+    stub = stubs / 'rg'
+    stub.write_text('#!/bin/sh\n')
+    stub.chmod(0o755)
+    monkeypatch.setenv('PATH', f'{stubs}{os.pathsep}{os.environ["PATH"]}')
     return path
 
 
@@ -68,6 +78,22 @@ def test_the_full_card_carries_every_authored_field(capsys):
     assert 'fd, grep' in out
     assert 'https://github.com/BurntSushi/ripgrep' in out
     assert 'rg -n TODO' in out and 'rg -t py class' in out, 'every example, not just the first'
+
+
+def test_the_path_check_reads_the_usage_not_the_key(capsys):
+    """`ripgrep` is never on PATH; `rg` is. Checking the key calls the row dead."""
+    out = render(capsys, 'ripgrep', tools.load_registry()['ripgrep'])
+
+    assert 'rg is on PATH' in out
+    assert 'not on PATH' not in out
+
+
+def test_a_path_miss_is_reported_without_a_verdict(capsys):
+    """Shell functions are not on PATH and are not stale, and the card cannot tell them apart."""
+    out = render(capsys, 'long-gone', tools.load_registry()['long-gone'])
+
+    assert 'not on PATH' in out
+    assert 'stale entry' not in out
 
 
 def test_the_brief_card_keeps_identity_description_and_one_command(capsys):

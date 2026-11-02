@@ -14,10 +14,10 @@ the keys most worth finding appear in no file a parser could read. `index.zsh_bi
 live shell and a stock `zsh -f`, and indexes the difference. It runs in a new session so the
 interactive zsh cannot take the terminal from an fzf preview. It is cached per process.
 
-**Nothing says whether a row runs on this machine.** `tools show` prints the registry row and
-nothing about PATH. No command reports a row as missing, stale or meant for another machine. howto
-is informational, and judging a machine against what it should have belongs to whatever
-configures the machine.
+**howto reports facts about this machine and never diagnoses it.** `tools show` says whether the
+row's command is on PATH. No command lists rows as stale or meant for another machine, and nothing
+asks a machine manifest what this box should hold. Diagnosing a box against the rules for that box
+belongs to whatever configures it.
 
 **The registry's card renderers take plain arguments, not index rows.** That is what lets
 `find.cmd_show` compose a registry card, a card and a shell function on one page without `tools`
