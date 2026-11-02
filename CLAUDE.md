@@ -14,8 +14,10 @@ the keys most worth finding appear in no file a parser could read. `index.zsh_bi
 live shell and a stock `zsh -f`, and indexes the difference. It runs in a new session so the
 interactive zsh cannot take the terminal from an fzf preview. It is cached per process.
 
-**`tools unresolved` is attached in `cli.py`, not declared in `tools.py`.** It reads the whole
-index, and `index` imports `tools`. Declaring it inside `tools` closes the cycle.
+**Nothing says whether a row runs on this machine.** `tools show` prints the registry row and
+nothing about PATH. No command reports a row as missing, stale or meant for another machine. howto
+is informational, and judging a machine against what it should have belongs to whatever
+configures the machine.
 
 **The registry's card renderers take plain arguments, not index rows.** That is what lets
 `find.cmd_show` compose a registry card, a card and a shell function on one page without `tools`

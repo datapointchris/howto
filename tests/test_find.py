@@ -59,8 +59,8 @@ def test_a_row_carries_its_invocation_past_fzf():
 
 def test_choosing_prints_the_invocation_and_nothing_else(picks, capsys):
     """The row is `ripgrep` and the answer is `rg`: a registry key is a package
-    name as often as a command, and printing the name would put something this
-    machine cannot run on the line."""
+    name as often as a command, and printing the name would put something you
+    cannot type on the line."""
     picks(find.index_lines(ENTRIES)[0])
 
     assert find.cmd_choose('', None) == 0

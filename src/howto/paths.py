@@ -36,7 +36,7 @@ def xdg_cache_home() -> Path:
 
 
 def cache_dir() -> Path:
-    """Where howto keeps what it can rebuild: the last sync's outcome, the machine manifest."""
+    """Where howto keeps what it can rebuild: the last sync's outcome."""
     return xdg_cache_home() / 'howto'
 
 

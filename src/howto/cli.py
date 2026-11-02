@@ -22,7 +22,6 @@ from howto import labs
 from howto import library
 from howto import shell
 from howto import tools
-from howto import unresolved
 from howto.render import set_no_input
 
 TAGLINE = 'How do I do this: reference cards, Labs, a tool registry, and your shell, searched as one.'
@@ -107,10 +106,6 @@ add_update_command(app, UPDATE_CONFIG)
 
 # What the fzf preview pane calls, not what you type.
 app.command('__preview', hidden=True)(find.preview_command)
-
-# The rot report reads the whole index, and `index` imports `tools`, so the verb
-# is attached here rather than declared inside `tools`.
-tools.app.command('unresolved')(unresolved.unresolved_command)
 
 app.add_typer(cards.app, name='cards')
 app.add_typer(tools.app, name='tools')

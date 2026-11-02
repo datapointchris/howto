@@ -33,7 +33,6 @@ howto find stash            # search everything; Enter shows what you picked
 howto show rg               # everything known about one name, on one page
 howto cards show git-rebase # one reference card
 howto labs choose           # a Lab to work through in a second pane
-howto tools unresolved      # registry rows naming something this machine cannot run
 ```
 
 The first command clones the library from
@@ -51,7 +50,7 @@ howto choose [term]         pick a row and print its invocation, for $(howto cho
 howto list [--json]         every indexed row, as the picker sees it
 
 howto cards list|show|new|random
-howto tools list|show|categories|unresolved
+howto tools list|show|categories
 howto labs list|show|choose|flash|new|edit
 howto library sync|status|path|edit
 howto shell widgets|completion
@@ -118,7 +117,7 @@ other shell, `$(howto choose)` prints the pick.
 ## What it writes
 
 - **The library checkout**, under `$XDG_DATA_HOME`, and the cards and Labs you create in it.
-- **A cache** under `$XDG_CACHE_HOME/howto/`: the outcome of the last background pull, and what this
-  machine declares it installs. Deleting it costs one recompute.
+- **A cache** under `$XDG_CACHE_HOME/howto/`: the outcome of the last background pull. The next
+  pull rewrites it.
 - **The update check's timestamp**, at `$XDG_STATE_HOME/howto/autoupdate-<machine>.json`. Set
   `NO_AUTO_UPDATE` and it never checks or writes.

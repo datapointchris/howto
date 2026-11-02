@@ -67,7 +67,7 @@ _howto() {{
     local -a sub
     case "$words[2]" in
       cards) sub=('list:Every card' 'show:Render one card' 'new:Create a card' 'random:Render a card at random') ;;
-      tools) sub=('list:Every tool, by category' 'show:One tool' 'categories:The categories' 'unresolved:Rows this machine cannot run') ;;
+      tools) sub=('list:Every tool, by category' 'show:One tool' 'categories:The categories') ;;
       labs) sub=('list:Every Lab' 'show:Open a Lab' 'choose:Pick a Lab' 'flash:Recall drill' 'new:Create a Lab' 'edit:Edit a Lab') ;;
       library) sub=('sync:Pull the library' 'status:Its path and uncommitted work' 'path:Print its path' 'edit:Open a card or Lab') ;;
       shell) sub=('widgets:The line-editor block' 'completion:This completion') ;;
