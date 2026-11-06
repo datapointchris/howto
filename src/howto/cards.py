@@ -128,30 +128,70 @@ def cmd_new(name: str) -> int:
     return 0
 
 
-app = typer.Typer(name='cards', no_args_is_help=True, help='The reference cards.')
+CARDS_HELP = """The reference cards.
+
+Examples:
+
+```text
+howto cards list               every card id and what it covers
+howto cards show git-rebase    one card, rendered in the terminal
+howto cards random             a card you did not go looking for
+howto cards new git worktrees  start a card and open it in $EDITOR
+```
+"""
+
+app = typer.Typer(name='cards', no_args_is_help=True, help=CARDS_HELP)
 
 
 @app.command('list')
 def list_command() -> None:
-    """Every card and what it covers."""
+    """Every card and what it covers.
+
+    Examples:
+
+    ```text
+    howto cards list               find the id to pass to cards show
+    ```
+    """
     raise typer.Exit(cmd_list())
 
 
 @app.command('show')
 def show_command(card_id: Annotated[str, typer.Argument(help='The card to render.')]) -> None:
-    """Render one card."""
+    """Render one card.
+
+    Examples:
+
+    ```text
+    howto cards show git-rebase    the interactive rebase workflow
+    ```
+    """
     raise typer.Exit(cmd_show(card_id))
 
 
 @app.command('new')
 def new_command(name: Annotated[list[str], typer.Argument(help='The new card name.')]) -> None:
-    """Create a card in the library and open it in $EDITOR."""
+    """Create a card in the library and open it in $EDITOR.
+
+    Examples:
+
+    ```text
+    howto cards new git worktrees  create cards/git-worktrees.md and edit it
+    ```
+    """
     raise typer.Exit(cmd_new(' '.join(name)))
 
 
 @app.command('random')
 def random_command() -> None:
-    """Render a card at random."""
+    """Render a card at random.
+
+    Examples:
+
+    ```text
+    howto cards random             one card at random, for a short review
+    ```
+    """
     raise typer.Exit(cmd_random())
 
 

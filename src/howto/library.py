@@ -272,24 +272,57 @@ def cmd_edit(what: str) -> int:
     return 1
 
 
-app = typer.Typer(name='library', no_args_is_help=True, help='The library checkout: cards, Labs and the tool registry.')
+LIBRARY_HELP = """The library checkout: cards, Labs and the tool registry.
+
+Examples:
+
+```text
+howto library status           where it is, and anything uncommitted
+howto library sync             pull the latest cards, Labs and registry now
+howto library edit git-rebase  open a card or Lab in $EDITOR by its id
+cd "$(howto library path)"     go to the checkout to commit what you wrote
+```
+"""
+
+app = typer.Typer(name='library', no_args_is_help=True, help=LIBRARY_HELP)
 
 
 @app.command('sync')
 def sync_command() -> None:
-    """Fetch the latest cards, Labs and registry."""
+    """Fetch the latest cards, Labs and registry.
+
+    Examples:
+
+    ```text
+    howto library sync             pick up a card written on another machine
+    ```
+    """
     raise typer.Exit(cmd_sync())
 
 
 @app.command('status')
 def status_command() -> None:
-    """Where the library lives and whether anything is uncommitted."""
+    """Where the library lives and whether anything is uncommitted.
+
+    Examples:
+
+    ```text
+    howto library status           check for cards written but not yet committed
+    ```
+    """
     raise typer.Exit(cmd_status())
 
 
 @app.command('path')
 def path_command() -> None:
-    """Print the library checkout path."""
+    """Print the library checkout path.
+
+    Examples:
+
+    ```text
+    cd "$(howto library path)"     go to the checkout to commit or push
+    ```
+    """
     raise typer.Exit(cmd_path())
 
 
@@ -297,5 +330,13 @@ def path_command() -> None:
 def edit_command(
     what: Annotated[str, typer.Argument(help='A card or Lab id.')],
 ) -> None:
-    """Open a card or Lab in $EDITOR, wherever it lives."""
+    """Open a card or Lab in $EDITOR, wherever it lives.
+
+    Examples:
+
+    ```text
+    howto library edit git-rebase  edit a card without knowing its directory
+    howto library edit git-stash   the same for a Lab
+    ```
+    """
     raise typer.Exit(cmd_edit(what))

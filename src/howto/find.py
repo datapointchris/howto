@@ -242,7 +242,16 @@ def lenses(source: list[str] | None) -> list[str] | None:
 
 
 def find_command(term: TermArgument = None, source: LensOption = None) -> None:
-    """Search everything and open all that is known about the one you pick."""
+    """Search everything and open all that is known about the one you pick.
+
+    Examples:
+
+    ```text
+    howto find stash               search everything, and open what you pick
+    howto find --source card git   only the cards that mention git
+    howto find                     browse every row, starting from nothing
+    ```
+    """
     raise typer.Exit(cmd_find(' '.join(term or []), lenses(source)))
 
 
@@ -251,12 +260,28 @@ def choose_command(term: TermArgument = None, source: LensOption = None) -> None
 
     `$(howto choose)` in any shell. `howto shell widgets zsh` emits the zsh half
     that lands the pick on the line editor instead of on stdout.
+
+    Examples:
+
+    ```text
+    howto choose                   pick a command and print it, ready to run
+    howto choose --source alias    only your aliases
+    $(howto choose docker)         run the docker command you pick
+    ```
     """
     raise typer.Exit(cmd_choose(' '.join(term or []), lenses(source)))
 
 
 def show_command(subject: Annotated[str, typer.Argument(help='The name of a tool, card, function, alias or key.')]) -> None:
-    """How to use one tool or command, from every collection that has it."""
+    """How to use one tool or command, from every collection that has it.
+
+    Examples:
+
+    ```text
+    howto show bat                 every collection's entry for bat, on one page
+    howto show git-rebase          a card, found by its id
+    ```
+    """
     raise typer.Exit(cmd_show(subject))
 
 
@@ -285,6 +310,14 @@ def list_command(
     A terminal gets one line per row, cut to its width so the list scans. A
     pipe gets every row whole, because fzf matches the whole line, and the tags
     at its end are the first thing a cut drops.
+
+    Examples:
+
+    ```text
+    howto list                     everything the picker searches, one row each
+    howto list | rg docker         the rows that mention docker, tags included
+    howto list --json              source, name, invocation, description per row
+    ```
     """
     entries = index.build_index()
     if as_json:

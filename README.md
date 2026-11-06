@@ -30,7 +30,7 @@ It runs on Python 3.13 or later. These are optional, and each one switches on a 
 ```bash
 howto library status        # the first run clones the library; prints where it went
 howto find stash            # search everything; Enter shows what you picked
-howto show rg               # everything known about one name, on one page
+howto show bat              # everything known about one name, on one page
 howto cards show git-rebase # one reference card
 howto labs choose           # a Lab to work through in a second pane
 ```

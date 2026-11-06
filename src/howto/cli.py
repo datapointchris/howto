@@ -27,13 +27,17 @@ from howto.render import set_no_input
 TAGLINE = 'How do I do this: reference cards, Labs, a tool registry, and your shell, searched as one.'
 
 # The examples sit in an indented block because markdown joins the lines of a
-# paragraph, and each example has to keep a line of its own.
+# paragraph, and each example has to keep a line of its own. The paragraph
+# after the block keeps it indented: typer dedents the text after the first
+# paragraph again, so a trailing indented block loses its indent and becomes a
+# paragraph. Every other command's help ends on its examples, so those sit in a
+# fenced text block, which renders the same and survives the dedent.
 ROOT_HELP = f"""{TAGLINE}
 
 Examples:
 
     howto find stash             search everything, and open what you pick
-    howto show rg                all that is known about one name
+    howto show bat               all that is known about one name
     howto choose                 pick a command and print it, ready to run
     howto cards show git-rebase  one reference card
     howto labs choose            a Lab to work through in another pane

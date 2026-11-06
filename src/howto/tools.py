@@ -359,7 +359,19 @@ def cmd_categories_list(as_json: bool) -> int:
     return 0
 
 
-app = typer.Typer(name='tools', no_args_is_help=True, help='The tool registry.')
+TOOLS_HELP = """The tool registry.
+
+Examples:
+
+```text
+howto tools list                    every tool you own, grouped by category
+howto tools list --category search  the tools for one job
+howto tools show bat                what bat is for, and what to type
+howto tools categories list         each category and its tool count
+```
+"""
+
+app = typer.Typer(name='tools', no_args_is_help=True, help=TOOLS_HELP)
 
 
 @app.command('list')
@@ -367,7 +379,16 @@ def list_command(
     category: Annotated[str | None, typer.Option('--category', help='Only this category.')] = None,
     as_json: Annotated[bool, typer.Option('--json', help='Output as JSON to stdout.')] = False,
 ) -> None:
-    """Every tool you own, grouped by category."""
+    """Every tool you own, grouped by category.
+
+    Examples:
+
+    ```text
+    howto tools list                    scan for the tool that fits the job
+    howto tools list --category search  only the search tools
+    howto tools list --json             name, category, description per tool
+    ```
+    """
     raise typer.Exit(cmd_list(category, as_json))
 
 
@@ -376,7 +397,15 @@ def show_command(
     name: Annotated[str, typer.Argument(help='The registry entry to render.')],
     brief: Annotated[bool, typer.Option('--brief', help='Three lines instead of the full card.')] = False,
 ) -> None:
-    """What one tool is, why to reach for it, and what to type."""
+    """What one tool is, why to reach for it, and what to type.
+
+    Examples:
+
+    ```text
+    howto tools show bat                the whole card: why, when, examples
+    howto tools show bat --brief        three lines, to recall what it is
+    ```
+    """
     raise typer.Exit(cmd_show(name, brief))
 
 
@@ -384,7 +413,16 @@ def show_command(
 # prints help when given no arguments, so walking down one token at a time never
 # runs something you did not ask for. That the set is read-only and will never
 # grow `create` does not buy it an exemption — predictability is the point.
-categories_app = typer.Typer(name='categories', no_args_is_help=True, help='The categories tools are grouped under.')
+CATEGORIES_HELP = """The categories tools are grouped under.
+
+Examples:
+
+```text
+howto tools categories list         the names --category accepts
+```
+"""
+
+categories_app = typer.Typer(name='categories', no_args_is_help=True, help=CATEGORIES_HELP)
 app.add_typer(categories_app, name='categories')
 
 
@@ -392,5 +430,13 @@ app.add_typer(categories_app, name='categories')
 def categories_list_command(
     as_json: Annotated[bool, typer.Option('--json', help='Output as JSON to stdout.')] = False,
 ) -> None:
-    """Every category and how many tools it holds."""
+    """Every category and how many tools it holds.
+
+    Examples:
+
+    ```text
+    howto tools categories list         pick a name for tools list --category
+    howto tools categories list --json  category and tool count, as JSON
+    ```
+    """
     raise typer.Exit(cmd_categories_list(as_json))

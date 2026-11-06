@@ -283,7 +283,19 @@ def cmd_flash(subject: str | None = None) -> int:
     return 0
 
 
-app = typer.Typer(name='labs', no_args_is_help=True, help='Hands-on practice Labs.')
+LABS_HELP = """Hands-on practice Labs.
+
+Examples:
+
+```text
+howto labs choose              pick a Lab to work through in another pane
+howto labs list                every Lab, with its title and tags
+howto labs show git-stash      one Lab, to read beside your practice pane
+howto labs flash git           a recall drill on the git examples
+```
+"""
+
+app = typer.Typer(name='labs', no_args_is_help=True, help=LABS_HELP)
 
 
 LimitOption = Annotated[int | None, typer.Option('--limit', '-n', help='Show at most this many, then say how many are left.')]
@@ -294,19 +306,42 @@ def list_command(
     as_json: Annotated[bool, typer.Option('--json', help='Output as JSON to stdout.')] = False,
     limit: LimitOption = None,
 ) -> None:
-    """Every Lab, with its title and tags."""
+    """Every Lab, with its title and tags.
+
+    Examples:
+
+    ```text
+    howto labs list                find a Lab by its title or tags
+    howto labs list -n 5           the first five, and how many are left
+    howto labs list --json         id, title and tags for another program
+    ```
+    """
     raise typer.Exit(cmd_list(as_json, limit))
 
 
 @app.command('show')
 def show_command(lab_id: Annotated[str, typer.Argument(help='The Lab to open.')]) -> None:
-    """Open a Lab to read while you work in another pane."""
+    """Open a Lab to read while you work in another pane.
+
+    Examples:
+
+    ```text
+    howto labs show git-stash      practice shelving work in progress
+    ```
+    """
     raise typer.Exit(cmd_show(lab_id))
 
 
 @app.command('choose')
 def choose_command() -> None:
-    """Choose a Lab interactively (fzf)."""
+    """Choose a Lab interactively (fzf).
+
+    Examples:
+
+    ```text
+    howto labs choose              browse Labs with a preview, open your pick
+    ```
+    """
     raise typer.Exit(cmd_pick())
 
 
@@ -314,19 +349,41 @@ def choose_command() -> None:
 def flash_command(
     subject: Annotated[str | None, typer.Argument(help='One tool or tag; omit to drill everything.')] = None,
 ) -> None:
-    """Quick recall drill from tool examples."""
+    """Quick recall drill from tool examples.
+
+    Examples:
+
+    ```text
+    howto labs flash git           recall git commands before a day of git work
+    howto labs flash               a drill across every tool's examples
+    ```
+    """
     raise typer.Exit(cmd_flash(subject))
 
 
 @app.command('new')
 def new_command(name: Annotated[list[str], typer.Argument(help='The new Lab name.')]) -> None:
-    """Scaffold a new Lab and open it in $EDITOR."""
+    """Scaffold a new Lab and open it in $EDITOR.
+
+    Examples:
+
+    ```text
+    howto labs new git worktrees   create labs/git-worktrees.md and edit it
+    ```
+    """
     raise typer.Exit(cmd_new(' '.join(name)))
 
 
 @app.command('edit')
 def edit_command(lab_id: Annotated[str, typer.Argument(help='The Lab to edit.')]) -> None:
-    """Edit an existing Lab in $EDITOR."""
+    """Edit an existing Lab in $EDITOR.
+
+    Examples:
+
+    ```text
+    howto labs edit git-stash      fix a step in a Lab you just worked through
+    ```
+    """
     raise typer.Exit(cmd_edit(lab_id))
 
 

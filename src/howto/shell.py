@@ -20,7 +20,17 @@ import typer
 
 from howto.paths import library_dir
 
-app = typer.Typer(name='shell', no_args_is_help=True, help='The blocks your shell loads from howto.')
+SHELL_HELP = """The blocks your shell loads from howto.
+
+Examples:
+
+```text
+eval "$(howto shell widgets zsh)"     in .zshrc: put a pick on the prompt
+eval "$(howto shell completion zsh)"  in .zshrc: complete verbs and ids
+```
+"""
+
+app = typer.Typer(name='shell', no_args_is_help=True, help=SHELL_HELP)
 
 SHELLS = ('zsh',)
 
@@ -159,6 +169,13 @@ def shell_widgets_command(shell: ShellArgument) -> None:
 
     zsh only, because `print -z` and the ZLE buffer are. Everywhere else the same
     pick is `$(howto choose)`, which prints the invocation and inserts nothing.
+
+    Examples:
+
+    ```text
+    eval "$(howto shell widgets zsh)"     in .zshrc, before the bindkey line
+    howto shell widgets zsh               read the block before you load it
+    ```
     """
     raise typer.Exit(emit(shell, 'widgets'))
 
