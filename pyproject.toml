@@ -27,7 +27,7 @@ dependencies = [
     "typer>=0.15.0",
     "rich>=13.0.0",
     "pyyaml",
-    "pyselfupdate[typer]>=0.5.4",
+    "pyselfupdate[typer]>=0.5.5",
 ]
 
 [project.scripts]
