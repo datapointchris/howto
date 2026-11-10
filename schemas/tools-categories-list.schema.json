@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:howto:tools-categories-list:v1",
+  "title": "howto tools categories list",
+  "description": "Each category the tool registry groups its entries under, sorted by name, with how many entries it holds.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "categories"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "categories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["category", "tools"],
+        "properties": {
+          "category": {"type": "string", "description": "The name `howto tools list --category` takes. Entries that author none are counted under `uncategorized`."},
+          "tools": {"type": "integer", "minimum": 1, "description": "How many registry entries the category holds."}
+        }
+      }
+    }
+  }
+}

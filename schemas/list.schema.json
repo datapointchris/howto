@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:howto:list:v1",
+  "title": "howto list",
+  "description": "Every row the picker searches, from every collection: the tool registry, the cards, and the functions, aliases, git aliases, forgit shortcuts, tmux keys and zsh keys the shell defines. Sorted by collection, then name.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "rows"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source", "name", "invocation", "description"],
+        "properties": {
+          "source": {"type": "string", "description": "The collection the row came from, one of the names `howto find --source` accepts."},
+          "name": {"type": "string", "description": "The row's identity in its collection, which `howto show` takes."},
+          "invocation": {"type": "string", "description": "What to type to run it, which is not always the name: a registry key is often a package name."},
+          "description": {"type": "string", "description": "What it does, empty where the collection says nothing."}
+        }
+      }
+    }
+  }
+}

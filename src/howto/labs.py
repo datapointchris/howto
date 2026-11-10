@@ -15,7 +15,6 @@ the file the reader reads — which is why nothing here resolves a second path o
 links one into the other.
 """
 
-import json
 import random
 import subprocess
 from typing import Annotated
@@ -33,6 +32,7 @@ from howto.paths import library_dir
 from howto.render import can_prompt
 from howto.render import console
 from howto.render import error_console
+from howto.render import print_json_rows
 
 LABS_DIR = library_dir() / 'labs'
 
@@ -130,10 +130,7 @@ def cmd_list(as_json: bool = False, limit: int | None = None) -> int:
     # An empty deck is an empty list, not the prose hint: --json must always be
     # parsable.
     if as_json:
-        # Plain print, never the rich console: a Console soft-wraps at terminal
-        # width, which would put newlines inside JSON strings and hand a consumer
-        # a parse error instead of data.
-        print(json.dumps(bounded(deck_rows(), limit), indent=2))
+        print_json_rows('labs', bounded(deck_rows(), limit))
         return 0
     deck = deck_rows()
     if not deck:

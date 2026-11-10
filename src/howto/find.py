@@ -21,7 +21,6 @@ for a card — because a second renderer is a second thing to keep in step with
 the first.
 """
 
-import json
 import shutil
 import subprocess
 from typing import Annotated
@@ -34,6 +33,7 @@ from howto import index
 from howto import tools
 from howto.render import console
 from howto.render import error_console
+from howto.render import print_json_rows
 
 FZF_FAILED = 2
 
@@ -326,11 +326,8 @@ def list_command(
     """
     entries = index.build_index()
     if as_json:
-        print(
-            json.dumps(
-                [{'source': e.source, 'name': e.name, 'invocation': e.invocation, 'description': e.description} for e in entries],
-                indent=2,
-            )
+        print_json_rows(
+            'rows', [{'source': e.source, 'name': e.name, 'invocation': e.invocation, 'description': e.description} for e in entries]
         )
         raise typer.Exit(0)
     if not console.is_terminal:

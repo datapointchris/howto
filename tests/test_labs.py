@@ -43,7 +43,7 @@ def test_limit_bounds_json_as_well_as_the_render(big_deck, capsys):
     """A flag that silently does nothing under --json is a knob that lies."""
     assert labs.cmd_list(as_json=True, limit=2) == 0
 
-    rows = json.loads(capsys.readouterr().out)
+    rows = json.loads(capsys.readouterr().out)['labs']
     assert [row['id'] for row in rows] == ['lab-0', 'lab-1']
 
 

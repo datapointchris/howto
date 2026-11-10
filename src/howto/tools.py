@@ -20,7 +20,6 @@ carries identity, what the thing is, and one command, clipped rather than
 wrapped, because a wrapped row is two rows.
 """
 
-import json
 import shutil
 from itertools import chain
 from typing import Annotated
@@ -33,6 +32,7 @@ from rich.text import Text
 from howto.paths import library_dir
 from howto.render import console
 from howto.render import error_console
+from howto.render import print_json_rows
 
 REGISTRY = library_dir() / 'tools' / 'registry.yml'
 
@@ -302,7 +302,7 @@ def cmd_list(category: str | None, as_json: bool) -> int:
             for name, meta in sorted(registry.items())
             if not category or category_of(meta) == category
         ]
-        print(json.dumps(rows, indent=2))
+        print_json_rows('tools', rows)
         return 0
     if not registry:
         console.print(Text(f'No registry at {REGISTRY}.'))
@@ -342,7 +342,7 @@ def category_counts() -> dict[str, int]:
 def cmd_categories_list(as_json: bool) -> int:
     counts = category_counts()
     if as_json:
-        print(json.dumps([{'category': name, 'tools': counts[name]} for name in sorted(counts)], indent=2))
+        print_json_rows('categories', [{'category': name, 'tools': counts[name]} for name in sorted(counts)])
         return 0
     if not counts:
         console.print(Text(f'No registry at {REGISTRY}.'))

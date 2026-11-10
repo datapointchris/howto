@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:howto:labs-list:v1",
+  "title": "howto labs list",
+  "description": "The Labs in the library's labs directory, sorted by id, cut to the first --limit when one is given.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "labs"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "labs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "tags"],
+        "properties": {
+          "id": {"type": "string", "description": "The Lab's filename without `.md`, which `howto labs show` takes."},
+          "title": {"type": "string", "description": "The Lab's first `# ` heading, or its id where it has none."},
+          "tags": {"type": "array", "items": {"type": "string"}, "description": "The `tags` in its front matter, empty where it has none."}
+        }
+      }
+    }
+  }
+}

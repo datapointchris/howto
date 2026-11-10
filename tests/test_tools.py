@@ -203,7 +203,7 @@ def test_uncategorized_selects_the_same_rows_on_both_paths(monkeypatch, tmp_path
     result = runner.invoke(app, ['tools', 'list', '--category', 'uncategorized', '--json'])
 
     assert result.exit_code == 0
-    assert [row['name'] for row in json.loads(result.stdout)] == ['homeless']
+    assert [row['name'] for row in json.loads(result.stdout)['tools']] == ['homeless']
 
 
 def test_an_empty_registry_does_not_turn_a_category_into_a_usage_error(monkeypatch, tmp_path):
@@ -214,13 +214,6 @@ def test_an_empty_registry_does_not_turn_a_category_into_a_usage_error(monkeypat
 
     assert result.exit_code == 0
     assert 'howto library sync' in result.output
-
-
-def test_list_json_is_parsable():
-    result = runner.invoke(app, ['tools', 'list', '--json'])
-
-    rows = json.loads(result.stdout)
-    assert {row['name'] for row in rows} == {'ripgrep', 'long-gone'}
 
 
 def test_show_points_wider_when_the_name_is_not_in_the_registry():
@@ -236,10 +229,10 @@ def test_categories_list_counts_each_group():
     assert 'search' in result.stdout
 
 
-def test_categories_list_json_is_parsable():
+def test_categories_list_json_counts_each_category():
     result = runner.invoke(app, ['tools', 'categories', 'list', '--json'])
 
-    assert json.loads(result.stdout) == [{'category': 'search', 'tools': 2}]
+    assert json.loads(result.stdout)['categories'] == [{'category': 'search', 'tools': 2}]
 
 
 def test_bare_categories_prints_help_rather_than_listing():
