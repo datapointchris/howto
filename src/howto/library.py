@@ -269,6 +269,11 @@ def cmd_edit(what: str) -> int:
             open_in_editor(candidate)
             return 0
     error_console.print(Text(f'No card or Lab named {what!r} under {LIBRARY_DIR}.'))
+    hint = Text('See every id with ')
+    hint.append('howto cards list', style='cyan')
+    hint.append(' and ')
+    hint.append('howto labs list', style='cyan')
+    error_console.print(hint)
     return 1
 
 
