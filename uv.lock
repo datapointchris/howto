@@ -556,11 +556,11 @@ wheels = [
 
 [[package]]
 name = "pyselfupdate"
-version = "0.5.5"
+version = "0.7.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/60/47/3d778daffcbc11470e8919f5ff5fef03b5a487523b706041b2b3333e1564/pyselfupdate-0.5.5.tar.gz", hash = "sha256:92c2e47b2163b7acb899807561c686ba2dfcdab66a531627e7a918cb447bec69", size = 36118, upload-time = "2026-11-07T09:52:55.784Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4c/1a/085df106b285cc1cb0b4a3a05c3e817d77b2ba881bbb7feef7074a47223f/pyselfupdate-0.7.0.tar.gz", hash = "sha256:4469f76c2618855a8604a3fa78492979151eef82b6eb38197892839ce761c247", size = 38695, upload-time = "2026-11-10T09:44:15.306Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/31/16/cd9c75037b841bad17aa06b4a519ef8c85bed5371b6b5e267ee1ab13d5ef/pyselfupdate-0.5.5-py3-none-any.whl", hash = "sha256:f3751fe16602929c3507f9cc84c53990dcca5d22f3e1889dd45d3320064af2ea", size = 41047, upload-time = "2026-11-07T09:52:54.707Z" },
+    { url = "https://files.pythonhosted.org/packages/02/8e/fa69338a2cf6beca01aac3bfeb1c0e2450b4b53a468aeafac11dd1424887/pyselfupdate-0.7.0-py3-none-any.whl", hash = "sha256:c70aee3ab5daba96136dd02689ef4e09fcdfbb8332f170ba976d3f88d16c2ea7", size = 43967, upload-time = "2026-11-10T09:44:14.129Z" },
 ]
 
 [package.optional-dependencies]
