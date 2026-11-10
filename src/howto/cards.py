@@ -27,6 +27,7 @@ from howto.markdown import split_frontmatter
 from howto.paths import library_dir
 from howto.render import console
 from howto.render import error_console
+from howto.render import print_json_rows
 
 CARDS_DIR = library_dir() / 'cards'
 
@@ -71,7 +72,16 @@ def unknown_card(card_id: str) -> int:
     return 1
 
 
-def cmd_list() -> int:
+def card_rows() -> list[dict]:
+    """Every card as its id, title and tags, in id order."""
+    return [{'id': card_id, 'title': card['title'], 'tags': card['tags']} for card_id, card in load_cards().items()]
+
+
+def cmd_list(as_json: bool = False) -> int:
+    # An empty directory is an empty list rather than the prose hint, so --json always parses.
+    if as_json:
+        print_json_rows('cards', card_rows())
+        return 0
     cards = load_cards()
     if not cards:
         return warn_no_cards()
@@ -144,16 +154,19 @@ app = typer.Typer(name='cards', no_args_is_help=True, help=CARDS_HELP)
 
 
 @app.command('list')
-def list_command() -> None:
+def list_command(
+    as_json: Annotated[bool, typer.Option('--json', help='Output as JSON to stdout.')] = False,
+) -> None:
     """Every card and what it covers.
 
     Examples:
 
     ```text
     howto cards list               find the id to pass to cards show
+    howto cards list --json        id, title and tags for another program
     ```
     """
-    raise typer.Exit(cmd_list())
+    raise typer.Exit(cmd_list(as_json))
 
 
 @app.command('show')

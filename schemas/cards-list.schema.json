@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:howto:cards-list:v1",
+  "title": "howto cards list",
+  "description": "The reference cards in the library's cards directory, sorted by id.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "cards"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "cards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "tags"],
+        "properties": {
+          "id": {"type": "string", "description": "The card's filename without `.md`, which `howto cards show` takes."},
+          "title": {"type": "string", "description": "The card's first `# ` heading, or its id where it has none."},
+          "tags": {"type": "array", "items": {"type": "string"}, "description": "The `tags` in its front matter, empty where it has none."}
+        }
+      }
+    }
+  }
+}

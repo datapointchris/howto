@@ -26,6 +26,7 @@ READS = {
     'tools-list': (['tools', 'list'], 'tools'),
     'tools-categories-list': (['tools', 'categories', 'list'], 'categories'),
     'labs-list': (['labs', 'list'], 'labs'),
+    'cards-list': (['cards', 'list'], 'cards'),
 }
 
 
