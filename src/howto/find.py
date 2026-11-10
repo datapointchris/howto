@@ -176,6 +176,11 @@ def cmd_show(subject: str) -> int:
     if not found:
         error_console.print(Text(f'Nothing known about {subject!r} in any collection.'))
         error_console.print(f'Collections searched: {", ".join(index.LENSES)}')
+        hint = Text('Search for it with ')
+        hint.append(f'howto find {subject}', style='cyan')
+        hint.append(', or list every name with ')
+        hint.append('howto list', style='cyan')
+        error_console.print(hint)
         return 1
 
     console.rule(f'[cyan]{subject}', align='left')
