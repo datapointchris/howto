@@ -117,7 +117,10 @@ def cmd_find(term: str, sources: list[str] | None) -> int:
         return 1
     if not selected:
         return 0
-    return cmd_show(selected.split('\t')[2])
+    # The rows the picker was built from are every collection's when no
+    # `--source` narrowed them, and then the composite reads them rather than
+    # building them again. A narrowed pick still opens every collection's view.
+    return cmd_show(selected.split('\t')[2], None if sources else entries)
 
 
 def cmd_choose(term: str, sources: list[str] | None) -> int:
@@ -165,14 +168,20 @@ def delegate(command: list[str]) -> bool:
     return True
 
 
-def cmd_show(subject: str) -> int:
+def cmd_show(subject: str, entries: list[index.Entry] | None = None) -> int:
     """How to use one tool or command, from every collection in the library that has it.
 
     Assembled in a fixed order so the same subject reads the same way every
     time, and each section names the collection it came from — a composite that
     hides its sources is one you cannot go and correct.
+
+    `entries` is every collection's rows when the caller has already built
+    them, as `find` has, and they are built here otherwise.
     """
-    found = lens_sources(subject)
+    if entries is None:
+        found = lens_sources(subject)
+    else:
+        found = {entry.source: entry for entry in entries if entry.name == subject}
     if not found:
         error_console.print(Text(f'Nothing known about {subject!r} in any collection.'))
         error_console.print(f'Collections searched: {", ".join(index.LENSES)}')

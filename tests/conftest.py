@@ -16,6 +16,7 @@ import pytest
 
 from howto import index
 from howto import library
+from howto import tools
 
 
 @pytest.fixture(autouse=True)
@@ -27,6 +28,12 @@ def isolated_zsh_keymap(monkeypatch):
     """
     index.zsh_bindkeys.cache_clear()
     monkeypatch.setattr(index, 'zsh_bindkeys', lambda interactive: '')
+
+
+@pytest.fixture(autouse=True)
+def fresh_registry_parse():
+    """A test that rewrites a registry file reads what it wrote, not a parse an earlier test cached."""
+    tools.read_registry.cache_clear()
 
 
 @pytest.fixture(autouse=True)

@@ -143,10 +143,10 @@ def test_list_through_a_pipe_keeps_every_row_whole(monkeypatch):
 def test_finding_opens_the_composite_for_the_name_picked(monkeypatch, picks):
     picks(find.index_lines(ENTRIES)[1])
     shown = []
-    monkeypatch.setattr(find, 'cmd_show', lambda subject: shown.append(subject) or 0)
+    monkeypatch.setattr(find, 'cmd_show', lambda subject, entries=None: shown.append((subject, entries)) or 0)
 
     assert find.cmd_find('', None) == 0
-    assert shown == ['ll']
+    assert shown == [('ll', ENTRIES)]
 
 
 def test_the_preview_builds_only_the_collection_it_was_given(monkeypatch):

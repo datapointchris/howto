@@ -20,8 +20,10 @@ carries identity, what the thing is, and one command, clipped rather than
 wrapped, because a wrapped row is two rows.
 """
 
+import functools
 import shutil
 from itertools import chain
+from pathlib import Path
 from typing import Annotated
 
 import typer
@@ -56,10 +58,25 @@ def load_registry() -> dict:
     A missing registry is not an error here. Cards, Labs and the shell
     collections need no registry, and a machine that has not synced the library
     yet should still search everything else.
+
+    Callers read the returned dict and never change it, because it is the one
+    cached parse every caller in this process shares.
     """
-    if not REGISTRY.exists():
+    return read_registry(REGISTRY)
+
+
+@functools.cache
+def read_registry(path: Path) -> dict:
+    """One parse of the registry at this path, for the life of the process.
+
+    `howto show` and the pick at the end of `howto find` read the registry once
+    to index it and again to render the row, and the parse is the slow half of
+    both. Keyed by path, so pointing `REGISTRY` elsewhere reads that file. Safe
+    only because howto is a short-lived process.
+    """
+    if not path.exists():
         return {}
-    return (yaml.safe_load(REGISTRY.read_text()) or {}).get('tools') or {}
+    return (yaml.safe_load(path.read_text()) or {}).get('tools') or {}
 
 
 def invocation_head(invocation: str) -> str:
