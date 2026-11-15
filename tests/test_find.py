@@ -33,7 +33,7 @@ ENTRIES = [
 @pytest.fixture
 def picks(monkeypatch):
     """Answer the picker with one canned row, and record how it was called."""
-    calls = {}
+    calls: dict[str, object] = {}
 
     def choose(row: str | None):
         def stub(lines, query, header):
@@ -143,7 +143,12 @@ def test_list_through_a_pipe_keeps_every_row_whole(monkeypatch):
 def test_finding_opens_the_composite_for_the_name_picked(monkeypatch, picks):
     picks(find.index_lines(ENTRIES)[1])
     shown = []
-    monkeypatch.setattr(find, 'cmd_show', lambda subject, entries=None: shown.append((subject, entries)) or 0)
+
+    def show(subject, entries=None):
+        shown.append((subject, entries))
+        return 0
+
+    monkeypatch.setattr(find, 'cmd_show', show)
 
     assert find.cmd_find('', None) == 0
     assert shown == [('ll', ENTRIES)]
@@ -177,7 +182,12 @@ def test_the_preview_builds_only_the_collection_it_was_given(monkeypatch, row, b
 @pytest.mark.parametrize(('subject', 'builds_zsh'), [('ll', False), ('viins Ctrl-R', True)])
 def test_show_asks_zsh_only_for_a_name_shaped_like_a_key(monkeypatch, subject, builds_zsh):
     asked = []
-    monkeypatch.setattr(index, 'build_index', lambda sources=None: asked.append(sources) or [])
+
+    def build_index(sources=None):
+        asked.append(sources)
+        return []
+
+    monkeypatch.setattr(index, 'build_index', build_index)
 
     find.cmd_show(subject)
 

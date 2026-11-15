@@ -34,7 +34,7 @@ def test_the_completion_offers_no_command_the_cli_does_not_have():
     registered |= {group.name for group in cli_app.registered_groups}
     assert offered <= registered, f'completion offers {sorted(offered - registered)}'
 
-    groups = {group.name: group.typer_instance for group in cli_app.registered_groups}
+    groups = {group.name: group.typer_instance for group in cli_app.registered_groups if group.typer_instance}
     for name, row in re.findall(r'^\s+(\w+)\) sub=\((.*)\) ;;$', script, re.M):
         verbs = set(re.findall(r"'([a-z-]+):", row))
         typer_app = groups[name]
