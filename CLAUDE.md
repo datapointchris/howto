@@ -12,7 +12,9 @@ did it, or what they prefer belongs in another tool that reads `howto ... --json
 **The zsh lens starts an interactive zsh.** fzf and atuin bind their widgets when they load, so
 the keys most worth finding appear in no file a parser could read. `index.zsh_bindkeys` asks the
 live shell and a stock `zsh -f`, and indexes the difference. It runs in a new session so the
-interactive zsh cannot take the terminal from an fzf preview. It is cached per process.
+interactive zsh cannot take the terminal from an fzf preview. It is cached per process. Only the
+picker's index and a `howto show` of a name shaped `<keymap> <key>` build it. A zsh row's preview
+draws its card from the command and description the picker's line carries.
 
 **howto reports facts about this machine and never diagnoses it.** `tools show` says whether the
 row's command is on PATH. No command lists rows as stale or meant for another machine, and nothing

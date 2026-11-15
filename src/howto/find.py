@@ -45,8 +45,9 @@ FZF_COMMON = [
     '--preview-window=right:62%',
 ]
 
-# What fzf runs per highlighted row, given the row's collection and name.
-PREVIEW = 'howto __preview {2} {3}'
+# What fzf runs per highlighted row, given the row's collection, name, command
+# and description. The last two are what a zsh row's card is drawn from.
+PREVIEW = 'howto __preview {2} {3} {5} {6}'
 
 # The header is the only thing on screen naming which picker you are in, so it
 # is named here rather than quoted at the call site — two commands share one
@@ -93,14 +94,20 @@ def print_without_a_picker() -> None:
 
 
 def index_lines(entries: list[index.Entry]) -> list[str]:
-    """`display <TAB> source <TAB> name <TAB> invocation` — field one is shown and searched.
+    """`display <TAB> source <TAB> name <TAB> invocation <TAB> command <TAB> description` — field one is shown and searched.
 
     The invocation rides along rather than being looked up again after the pick.
     `--with-nth=1` means fzf neither displays nor matches it, and re-resolving a
     name through a second `build_index()` is a second answer that can disagree
     with the row the human actually pointed at.
+
+    The command and description ride along for the preview of a zsh row, which
+    draws its card from them rather than asking zsh for its keymaps again on
+    every highlighted row.
     """
-    return [f'{entry.display()}\t{entry.source}\t{entry.name}\t{entry.invocation}' for entry in entries]
+    return [
+        f'{entry.display()}\t{entry.source}\t{entry.name}\t{entry.invocation}\t{entry.command}\t{entry.description}' for entry in entries
+    ]
 
 
 def explain_empty_index() -> int:
@@ -147,9 +154,9 @@ def cmd_choose(term: str, sources: list[str] | None) -> int:
 def lens_sources(subject: str, sources: list[str] | None = None) -> dict[str, index.Entry]:
     """Every indexed row whose name is this subject, keyed by collection.
 
-    `howto show` wants all of them, which is the composite. A preview already
-    knows which collection its row came from, and narrowing to it is the
-    difference between reading one file and asking zsh for its keymaps.
+    `howto show` wants all of them that could hold the name, which is the
+    composite. A preview already knows which collection its row came from, and
+    narrowing to it reads that collection's files and nothing else.
     """
     return {entry.source: entry for entry in index.build_index(sources) if entry.name == subject}
 
@@ -176,10 +183,12 @@ def cmd_show(subject: str, entries: list[index.Entry] | None = None) -> int:
     hides its sources is one you cannot go and correct.
 
     `entries` is every collection's rows when the caller has already built
-    them, as `find` has, and they are built here otherwise.
+    them, as `find` has. Otherwise each collection is built here, and the zsh
+    one only for a name shaped like its rows, because building it starts an
+    interactive zsh.
     """
     if entries is None:
-        found = lens_sources(subject)
+        found = lens_sources(subject, [source for source in index.LENSES if source != 'zsh' or index.could_be_zsh_key(subject)])
     else:
         found = {entry.source: entry for entry in entries if entry.name == subject}
     if not found:
@@ -299,13 +308,24 @@ def show_command(subject: Annotated[str, typer.Argument(help='The name of a tool
     raise typer.Exit(cmd_show(subject))
 
 
-def preview_command(source: Annotated[str, typer.Argument()], name: Annotated[str, typer.Argument()]) -> None:
+def preview_command(
+    source: Annotated[str, typer.Argument()],
+    name: Annotated[str, typer.Argument()],
+    command: Annotated[str, typer.Argument()] = '',
+    description: Annotated[str, typer.Argument()] = '',
+) -> None:
     """Render one row for the fzf preview pane.
 
     Runs once per keystroke, so it builds the one collection fzf named rather
-    than the whole index. A source fzf could not have produced renders nothing:
-    the preview pane is not where a usage error is worth printing.
+    than the whole index. A zsh row builds none: its card is drawn from the
+    command and description the picker's line carries, because building that
+    collection starts an interactive zsh. A source fzf could not have produced
+    renders nothing: the preview pane is not where a usage error is worth
+    printing.
     """
+    if source == 'zsh':
+        tools.render_zsh_key(name, command, description)
+        raise typer.Exit(0)
     if source == 'tool':
         tools.render_tool(name, tools.load_registry().get(name) or {})
         raise typer.Exit(0)

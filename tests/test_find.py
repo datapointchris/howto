@@ -53,7 +53,7 @@ def test_a_row_carries_its_invocation_past_fzf():
     fields = find.index_lines(ENTRIES)[0].split('\t')
 
     assert fields[0] == ENTRIES[0].display()
-    assert fields[1:] == ['tool', 'ripgrep', 'rg [pattern] [path]']
+    assert fields[1:] == ['tool', 'ripgrep', 'rg [pattern] [path]', '', 'Ultra-fast recursive grep']
     assert '--with-nth=1' in find.FZF_COMMON
 
 
@@ -149,10 +149,17 @@ def test_finding_opens_the_composite_for_the_name_picked(monkeypatch, picks):
     assert shown == [('ll', ENTRIES)]
 
 
-def test_the_preview_builds_only_the_collection_it_was_given(monkeypatch):
-    """It runs once per keystroke, and building every collection to render one
-    row asks zsh for its keymaps each time. That subprocess is an interactive
-    shell, which takes the terminal from the picker that spawned it."""
+@pytest.mark.parametrize(
+    ('row', 'built'),
+    [
+        (('alias', 'll'), [['alias']]),
+        (('zsh', 'viins Ctrl-R', "bindkey -M viins '^R' atuin-search", 'search shell history with atuin'), []),
+    ],
+)
+def test_the_preview_builds_only_the_collection_it_was_given(monkeypatch, row, built):
+    """It runs once per keystroke, and building the zsh collection asks an
+    interactive zsh for its keymaps, sourcing the whole zshrc each time. A zsh
+    row's card comes from the fields its line carries instead."""
     asked = []
 
     def record(sources=None):
@@ -162,9 +169,19 @@ def test_the_preview_builds_only_the_collection_it_was_given(monkeypatch):
     monkeypatch.setattr(index, 'build_index', record)
 
     with pytest.raises(typer.Exit):
-        find.preview_command('alias', 'll')
+        find.preview_command(*row)
 
-    assert asked == [['alias']]
+    assert asked == built
+
+
+@pytest.mark.parametrize(('subject', 'builds_zsh'), [('ll', False), ('viins Ctrl-R', True)])
+def test_show_asks_zsh_only_for_a_name_shaped_like_a_key(monkeypatch, subject, builds_zsh):
+    asked = []
+    monkeypatch.setattr(index, 'build_index', lambda sources=None: asked.append(sources) or [])
+
+    find.cmd_show(subject)
+
+    assert ('zsh' in asked[0]) is builds_zsh
 
 
 def test_an_empty_index_says_how_to_fill_it(monkeypatch, capsys):

@@ -279,6 +279,17 @@ def index_tmux_keys() -> list[Entry]:
 # choice, and only the one `main` points at ends up indexed.
 ZSH_KEYMAPS = ('main', 'emacs', 'viins', 'vicmd')
 
+
+def could_be_zsh_key(name: str) -> bool:
+    """Whether a name has a zsh row's shape: one of `ZSH_KEYMAPS`, a space, then a key.
+
+    Building the zsh lens starts an interactive zsh that sources the whole
+    zshrc, so a lookup by name builds it only for a name that could match.
+    """
+    keymap, _, key = name.partition(' ')
+    return keymap in ZSH_KEYMAPS and bool(key)
+
+
 # Bound in every zsh and never a discovery: literal insertion, the terminal's own
 # escape sequences, and the digit prefix.
 ZSH_NOISE = frozenset({'self-insert', 'undefined-key', 'bracketed-paste', 'digit-argument'})
@@ -355,9 +366,9 @@ def zsh_bindkeys(interactive: bool) -> str:
     Interactive is the live shell, with every plugin loaded; `-f` is stock zsh
     with no startup files at all. The pair is what makes the diff possible.
 
-    Cached because a `howto find` that opens a card builds the index twice, and
-    the interactive read is the most expensive thing in it — it sources the whole
-    zshrc. Safe only because howto is a short-lived process.
+    Cached so a process asks zsh once, because the interactive read is the most
+    expensive thing in the index — it sources the whole zshrc. Safe only because
+    howto is a short-lived process.
 
     `start_new_session` is what keeps the interactive read from taking the
     terminal. An interactive zsh claims the controlling terminal with
