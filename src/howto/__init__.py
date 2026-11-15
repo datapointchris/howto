@@ -14,6 +14,3 @@ def tool_version() -> str:
         return installed_version('howto')
     except PackageNotFoundError:
         return 'unknown'
-
-
-__version__ = tool_version()

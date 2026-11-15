@@ -6,23 +6,24 @@ own `app`; this file only assembles them.
 """
 
 import sys
+from typing import TYPE_CHECKING
 from typing import Annotated
 from typing import Any
 
 import typer
-from pyselfupdate import Config
-from pyselfupdate import notify
-from pyselfupdate.typercmd import add_update_command
 from typer.core import TyperGroup
 
-from howto import __version__
 from howto import cards
 from howto import find
 from howto import labs
 from howto import library
 from howto import shell
+from howto import tool_version
 from howto import tools
 from howto.render import set_no_input
+
+if TYPE_CHECKING:
+    import pyselfupdate
 
 TAGLINE = 'How do I do this: reference cards, Labs, a tool registry, and your shell, searched as one.'
 
@@ -96,16 +97,48 @@ def name_accepted_placements(failure: Any) -> None:
 app = typer.Typer(name='howto', cls=RootGroup, no_args_is_help=True, help=ROOT_HELP, rich_markup_mode='markdown')
 
 
-# Notify-only: one check per 24h, one line to stderr, and `howto update` is the
-# only thing that writes anything. The notice and the command share this one
-# config so they cannot advertise a release the command then refuses.
-UPDATE_CONFIG = Config(tool='howto', owner='datapointchris')
+def update_config() -> 'pyselfupdate.Config':
+    """What `howto update` installs and what the daily notice compares against.
+
+    Notify-only: one check per 24h, one line to stderr, and `howto update` is the
+    only thing that writes anything. The notice and the command share this one
+    config so they cannot advertise a release the command then refuses.
+
+    pyselfupdate is imported here and in the two places that call this, rather
+    than at the top, because it loads its HTTP and install stack with it, and
+    most runs, the fzf preview's included, never check for a release.
+    """
+    # 348ms → 218ms on `howto __preview alias ll`, 2026-11-15
+    import pyselfupdate
+
+    return pyselfupdate.Config(tool='howto', owner='datapointchris')
+
+
+def update_command(
+    check_only: Annotated[bool, typer.Option('--check', help='Report whether an update is available without installing it')] = False,
+    skip_changelog: Annotated[bool, typer.Option('--no-changelog', help='Do not list the commits between versions')] = False,
+) -> None:
+    """Update howto to the latest release.
+
+    Examples:
+
+    ```text
+    howto update                 install the newest and list its commits
+    howto update --check         only report whether a newer one exists
+    howto update --no-changelog  install it without listing its commits
+    ```
+    """
+    # 348ms → 218ms on `howto __preview alias ll`, 2026-11-15
+    from pyselfupdate.typercmd import run_update
+
+    run_update(update_config(), check_only=check_only, skip_changelog=skip_changelog)
+
 
 app.command('find')(find.find_command)
 app.command('show')(find.show_command)
 app.command('choose')(find.choose_command)
 app.command('list')(find.list_command)
-add_update_command(app, UPDATE_CONFIG)
+app.command('update')(update_command)
 
 # What the fzf preview pane calls, not what you type.
 app.command('__preview', hidden=True)(find.preview_command)
@@ -121,7 +154,7 @@ def version_callback(asked: bool) -> None:
     """`howto --version`, in the one line every CLI here answers it with."""
     if not asked:
         return
-    print(f'howto {__version__}')
+    print(f'howto {tool_version()}')
     raise typer.Exit()
 
 
@@ -149,16 +182,22 @@ def root(
     """
     set_no_input(no_input)
     # A help screen reads no cards, so neither the clone nor the pull belongs on
-    # one. Typer runs this callback before answering a subcommand's --help.
-    if library.worth_a_pull(sys.argv):
-        library.ensure_cloned()
-        if ctx.invoked_subcommand != 'library':
-            library.autosync()
+    # one. Typer runs this callback before answering a subcommand's --help. The
+    # update notice is skipped on the same runs: nobody reads a line on stderr
+    # from a help screen or from the preview fzf runs on every keystroke.
+    if not library.worth_a_pull(sys.argv):
+        return
+    library.ensure_cloned()
+    if ctx.invoked_subcommand != 'library':
+        library.autosync()
 
     # `update` runs its own check, so notifying too would ask the releases API
     # twice for one command.
     if ctx.invoked_subcommand != 'update':
-        notify(UPDATE_CONFIG)
+        # 348ms → 218ms on `howto __preview alias ll`, 2026-11-15
+        from pyselfupdate import notify
+
+        notify(update_config())
 
 
 def main() -> None:

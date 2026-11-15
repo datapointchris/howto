@@ -11,9 +11,9 @@ asks the releases API for an update. A test of `howto list` would otherwise
 clone over the network on CI and pull the real checkout everywhere else.
 """
 
+import pyselfupdate
 import pytest
 
-from howto import cli
 from howto import index
 from howto import library
 
@@ -40,4 +40,4 @@ def quiet_root_callback(monkeypatch):
     """test_library binds the real clone and pull at import, before these stubs go in."""
     monkeypatch.setattr(library, 'ensure_cloned', lambda: True)
     monkeypatch.setattr(library, 'autosync', lambda argv=None: False)
-    monkeypatch.setattr(cli, 'notify', lambda config: None)
+    monkeypatch.setattr(pyselfupdate, 'notify', lambda config: None)
