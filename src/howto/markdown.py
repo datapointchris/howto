@@ -12,6 +12,14 @@ from pathlib import Path
 
 import yaml
 
+# libyaml's loader where PyYAML was built with it, as its wheels are. It parses
+# several times faster than the pure-Python one, and every card's frontmatter
+# goes through it.
+try:
+    from yaml import CSafeLoader as SafeLoader
+except ImportError:
+    from yaml import SafeLoader
+
 
 def split_frontmatter(text: str) -> tuple[dict, str]:
     """(frontmatter dict, body) for a card's text.
@@ -25,7 +33,7 @@ def split_frontmatter(text: str) -> tuple[dict, str]:
     if len(parts) < 3:
         return {}, text
     front, body = parts[1], parts[2].lstrip('\n')
-    meta = yaml.safe_load(front) if front else None
+    meta = yaml.load(front, Loader=SafeLoader) if front else None
     # A block that parses to a scalar — `---\nfoo\n---` — would otherwise be
     # handed back for a caller to call .get() on.
     return (meta if isinstance(meta, dict) else {}), body

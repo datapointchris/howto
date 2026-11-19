@@ -51,6 +51,14 @@ BRIEF_WIDTH = 72
 # example. More than that and it is the detail view with fields missing.
 BRIEF_EXAMPLES = 1
 
+# libyaml's loader where PyYAML was built with it, as its wheels are. It parses
+# several times faster than the pure-Python one, and every command reads the
+# registry.
+try:
+    from yaml import CSafeLoader as SafeLoader
+except ImportError:
+    from yaml import SafeLoader
+
 
 def load_registry() -> dict:
     """`{name: {category, description, usage, examples, ...}}`, or empty.
@@ -76,7 +84,7 @@ def read_registry(path: Path) -> dict:
     """
     if not path.exists():
         return {}
-    return (yaml.safe_load(path.read_text()) or {}).get('tools') or {}
+    return (yaml.load(path.read_text(), Loader=SafeLoader) or {}).get('tools') or {}
 
 
 def invocation_head(invocation: str) -> str:
